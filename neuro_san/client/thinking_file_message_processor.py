@@ -73,6 +73,7 @@ class ThinkingFileMessageProcessor(MessageProcessor):
         if test_origin_str is not None:
             origin_str = test_origin_str
 
+        print("writing", chat_message_dict, "to", origin_str)
         self.write_message(chat_message_dict, origin_str)
 
     def write_message(self, response: Dict[str, Any], origin_str: str):
@@ -132,6 +133,7 @@ class ThinkingFileMessageProcessor(MessageProcessor):
             if origin_filename is None or len(origin_filename) == 0:
                 return
             filename = Path(self.thinking_dir, origin_filename)
+        print("writing to", filename)
 
         how_to_open_file: str = "a"
         if not filename.exists():

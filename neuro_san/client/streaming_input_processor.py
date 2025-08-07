@@ -43,6 +43,7 @@ class StreamingInputProcessor:
         self.session: AgentSession = session
         self.processor = BasicMessageProcessor()
         if thinking_dir is not None and thinking_file is not None:
+            print("thinking file processor added")
             self.processor.add_processor(ThinkingFileMessageProcessor(thinking_file, thinking_dir))
 
         if self.session is None:
