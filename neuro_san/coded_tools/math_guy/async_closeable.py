@@ -10,17 +10,18 @@
 #
 # END COPYRIGHT
 
-from neuro_san.internals.interfaces.agent_network_provider import AgentNetworkProvider
+from logging import getLogger
+from logging import Logger
 
 
-class AgentStorageSource:
+class AsyncCloseable:
     """
-    Interface onto AgentNetworkStorage so that there is not a tangle with the service side.
+    A simple object used to test the asynchronous close()-ing of objects on sly_data.
     """
 
-    def get_agent_network_provider(self, agent_name: str) -> AgentNetworkProvider:
+    async def close(self):
         """
-        Get AgentNetworkProvider for a specific agent
-        :param agent_name: name of an agent
+        Close the object
         """
-        raise NotImplementedError
+        logger: Logger = getLogger(self.__class__.__name__)
+        logger.info("async close() called")
