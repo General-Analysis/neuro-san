@@ -133,7 +133,7 @@ class HttpServer(AgentAuthorizer, AgentStateListener):
         if self.server_config.http_server_monitor_interval_seconds > 0:
             # Start periodic logging of server resources used:
             tornado.ioloop.PeriodicCallback(
-                self.log_resources_usage,
+                self.run_resources_usage,
                 self.server_config.http_server_monitor_interval_seconds * 1000).start()
 
         tornado.ioloop.IOLoop.current().start()
@@ -152,10 +152,20 @@ class HttpServer(AgentAuthorizer, AgentStateListener):
         log_dict: Dict[str, Any] = {
             "soft_limit": soft_limit,
             "hard_limit": hard_limit,
-            "file_descroptors": fd_dict,
+            "file_descriptors": fd_dict,
             "sockets": sock_classes
         }
         self.logger.info({}, "Used: %s", json.dumps(log_dict, indent=4))
+
+    async def run_resources_usage(self):
+        """
+        Execute collecting and logging of server run-time resources
+        in on-blocking mode w.r.t. server event loop.
+        This is done because enumerating of some system resources
+        could be relatively slow.
+        """
+        loop = tornado.ioloop.IOLoop.current()
+        return await loop.run_in_executor(None, self.log_resources_usage)
 
     def make_app(self, requests_limit: int, logger: EventLoopLogger):
         """

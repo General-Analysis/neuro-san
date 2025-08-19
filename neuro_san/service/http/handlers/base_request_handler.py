@@ -175,7 +175,7 @@ class BaseRequestHandler(RequestHandler):
             return
 
         # Get unique request id in case we will need it:
-        self.request_id = await self.request_id_counter.next()
+        self.request_id = await self.request_id_counter.increment()
 
         self.logger.debug(self.get_metadata(), f"[REQUEST RECEIVED] {self.request.method} {self.request.uri}")
 

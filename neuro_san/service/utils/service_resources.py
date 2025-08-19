@@ -19,19 +19,10 @@ import psutil
 from typing import Any
 from typing import Dict
 from typing import Iterable
+from typing import List
 from typing import Optional
 from typing import Tuple
 import psutil
-
-
-class ServiceResources:
-    """
-    Class provides utility methods to monitor usage
-    of service run-time resources,
-    like:
-    - Unix/macOS: file descriptors (FDs) by type
-    - Windows: OS handles breakdown (files vs INET sockets) + total handles
-    """
 
 # Unix-only
 try:
@@ -42,10 +33,15 @@ except Exception:  # pylint: disable=broad-exception-caught
 
 class ServiceResources:
     """
-    Utility methods to monitor process runtime resources:
+    Class provides utility methods to monitor usage
+    of service run-time resources,
+    like:
     - Unix/macOS: file descriptors (FDs) by type
     - Windows: OS handles breakdown (files vs INET sockets) + total handles
     """
+    on_unix: bool = sys.platform.startswith("linux")
+    on_macos: bool = sys.platform.startswith("darwin")
+    on_windows: bool = sys.platform.startswith("win")
 
     # ---------------------------
     # POSIX helpers (Linux/macOS)
@@ -55,7 +51,7 @@ class ServiceResources:
         """
         Iterator over numeric FDs for the current process (Unix/macOS).
         """
-        fd_dir = "/proc/self/fd" if sys.platform.startswith("linux") else "/dev/fd"
+        fd_dir = "/proc/self/fd" if cls.on_unix else "/dev/fd"
         try:
             names = os.listdir(fd_dir)
         except Exception:  # directory may not exist in some rare envs
@@ -131,7 +127,10 @@ class ServiceResources:
         """
         p = psutil.Process()
 
-        total_handles = p.num_handles()  # all handles owned by this process
+        try:
+            total_handles = p.num_handles()  # all handles owned by this process
+        except Exception:  # pylint: disable=broad-exception-caught
+            total_handles = 0
         files = len(p.open_files())
         # TCP/UDP INET sockets for this process
         inet_conns = p.connections(kind="inet")
@@ -163,9 +162,9 @@ class ServiceResources:
           * Unix/macOS: returns per-FD kinds + "total"
           * Windows:    returns per-handle kinds + "total_handles"
         """
-        if sys.platform.startswith(("linux", "darwin")):
+        if cls.on_unix or cls.on_macos:
             return cls._classify_fds_posix()
-        elif sys.platform.startswith("win"):
+        elif cls.on_windows:
             return cls._classify_handles_windows()
         else:
             # Fallback: try POSIX path; if not, return minimal info
@@ -185,7 +184,7 @@ class ServiceResources:
         """
         counts = cls.classify_fds()
 
-        if sys.platform.startswith(("linux", "darwin")) and resource is not None:
+        if (cls.on_unix or cls.on_macos) and resource is not None:
             soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
             return counts, soft, hard
 
