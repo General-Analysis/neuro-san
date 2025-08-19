@@ -13,6 +13,7 @@
 See class comment for details
 """
 
+import json
 from typing import Any
 from typing import Dict
 from typing import List
@@ -132,7 +133,7 @@ class HttpServer(AgentAuthorizer, AgentStateListener):
         if self.server_config.http_server_monitor_interval_seconds > 0:
             # Start periodic logging of server resources used:
             tornado.ioloop.PeriodicCallback(
-                self.log_resources_usage,
+                self.run_resources_usage,
                 self.server_config.http_server_monitor_interval_seconds * 1000).start()
 
         tornado.ioloop.IOLoop.current().start()
@@ -146,11 +147,25 @@ class HttpServer(AgentAuthorizer, AgentStateListener):
         file descriptors and open inet connections on server port.
         """
         # Get used file descriptors:
-        fds, soft_limit, hard_limit = ServiceResources.get_fd_usage()
-        # Get active TCP connections to our http port:
-        conn = ServiceResources.active_tcp_on_port(self.http_port)
-        self.logger.info({}, "Used: file descriptors %d (%d, %d) connections: %d",
-                         fds, soft_limit, hard_limit, conn)
+        fd_dict, soft_limit, hard_limit = ServiceResources.get_fd_usage()
+        sock_classes = ServiceResources.classify_sockets(self.http_port)
+        log_dict: Dict[str, Any] = {
+            "soft_limit": soft_limit,
+            "hard_limit": hard_limit,
+            "file_descriptors": fd_dict,
+            "sockets": sock_classes
+        }
+        self.logger.info({}, "Used: %s", json.dumps(log_dict, indent=4))
+
+    async def run_resources_usage(self):
+        """
+        Execute collecting and logging of server run-time resources
+        in on-blocking mode w.r.t. server event loop.
+        This is done because enumerating of some system resources
+        could be relatively slow.
+        """
+        loop = tornado.ioloop.IOLoop.current()
+        return await loop.run_in_executor(None, self.log_resources_usage)
 
     def make_app(self, requests_limit: int, logger: EventLoopLogger):
         """
