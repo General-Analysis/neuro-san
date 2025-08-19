@@ -15,7 +15,6 @@ See class definition for comments.
 import os
 import sys
 import stat
-import psutil
 from typing import Any
 from typing import Dict
 from typing import Iterable
@@ -26,6 +25,7 @@ import psutil
 
 # Unix-only
 try:
+    # pylint: disable=invalid-name
     import resource  # not available on Windows
 except Exception:  # pylint: disable=broad-exception-caught
     resource = None
@@ -54,7 +54,8 @@ class ServiceResources:
         fd_dir = "/proc/self/fd" if cls.on_unix else "/dev/fd"
         try:
             names = os.listdir(fd_dir)
-        except Exception:  # directory may not exist in some rare envs
+        except Exception:  # pylint: disable=broad-exception-caught
+            # directory may not exist in some rare environments
             return
         for name in names:
             try:
@@ -139,9 +140,7 @@ class ServiceResources:
         # We can't see AF_UNIX on Windows (not applicable), FIFO pipes classification requires WinAPI.
         # Derive "other_handles" as the remainder; never let it go negative.
         known = files + socket_inet
-        other_handles = total_handles - known
-        if other_handles < 0:
-            other_handles = 0
+        other_handles = max(total_handles - known, 0)
 
         return {
             "regular_file": files,
@@ -164,15 +163,14 @@ class ServiceResources:
         """
         if cls.on_unix or cls.on_macos:
             return cls._classify_fds_posix()
-        elif cls.on_windows:
+        if cls.on_windows:
             return cls._classify_handles_windows()
-        else:
-            # Fallback: try POSIX path; if not, return minimal info
-            try:
-                return cls._classify_fds_posix()
-            except Exception:  # pylint: disable=broad-exception-caught
-                p = psutil.Process()
-                return {"total_unknown": getattr(p, "num_fds", lambda: 0)()}
+        # Fallback: try POSIX path; if not, return minimal info
+        try:
+            return cls._classify_fds_posix()
+        except Exception:  # pylint: disable=broad-exception-caught
+            p = psutil.Process()
+            return {"total_unknown": getattr(p, "num_fds", lambda: 0)()}
 
     @classmethod
     def get_fd_usage(cls) -> Tuple[Dict[str, int], Optional[int], Optional[int]]:
@@ -202,7 +200,7 @@ class ServiceResources:
         try:
             # Works on psutil <= 5.x and (for now) also on many 6.x installs
             return p.connections(kind="tcp")
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             # psutil 6.x style: filter system-wide by pid
             conns = []
             for c in psutil.net_connections(kind="tcp"):
@@ -234,7 +232,7 @@ class ServiceResources:
                         sock_addr = str(conn.raddr)
                     else:
                         sock_addr = f"{rip}:{rport}"
-                except Exception:
+                except Exception:  # pylint: disable=broad-exception-caught
                     # Very defensive: some psutil versions/platforms might differ
                     sock_addr = str(conn.raddr)
             else:

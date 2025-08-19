@@ -53,4 +53,3 @@ class AsyncAtomicCounter:
         :return: The value of the counter.
         """
         return self._value
-
