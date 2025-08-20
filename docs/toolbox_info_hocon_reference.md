@@ -70,7 +70,7 @@ Fully qualified class name of the tool. It must exist in the server's `PYTHONPAT
 Example:
 
 ```hocon
-"class": "langchain_community.tools.bing_search.BingSearchResults"
+"class": "langchain_community.tools.tavily_search.TavilySearchResults"
 ```
 
 If the class is a Langchain **toolkit** (such as `RequestsToolkit`), it must implement a `get_tools()` method. When instantiated,
@@ -97,15 +97,18 @@ Example:
 ```hocon
 "args": {
     "api_wrapper": {
-        "class": "langchain_community.utilities.BingSearchAPIWrapper",
+        "class": "langchain_community.utilities.tavily_search.TavilySearchAPIWrapper",
         "args": {
-            "k": 3
+            "tavily_api_key": "your-api-key"
         }
     }
 }
 ```
 
-This instantiates `BingSearchResults(api_wrapper=BingSearchAPIWrapper(k=3))`
+This instantiates `TavilySearchResults(api_wrapper=TavilySearchAPIWrapper(tavily_api_key="your-api-key"))`.
+
+**Note:** This is only an example. It’s recommended not to hardcode credentials in the HOCON file.
+Instead, set the environment variable `TAVILY_API_KEY`.
 
 #### `base_tool_info_url` *(optional)*
 
