@@ -830,6 +830,11 @@
                 "tiktoken_model_name": null,
                 "stop": null,
 
+                # The following parameters are for reasoning models only.
+                "reasoning": null, # Reasoning parameters for reasoning models (Dict[str, Any])
+                "reasoning_effort": null, # Constrains effort on reasoning for reasoning models (str)
+                "verbosity": null, # Controls the verbosity level of responses for reasoning models (str)
+
                 # If you really need more parameters, you will likely have to create your own LlmFactory.
             }
         },
