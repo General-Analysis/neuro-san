@@ -99,6 +99,11 @@ class StandardLangChainLlmFactory(LangChainLlmFactory):
                 tiktoken_model_name=config.get("tiktoken_model_name"),
                 stop=config.get("stop"),
 
+                # The following three parameters are for reasoning models only.
+                reasoning=config.get("reasoning"),
+                reasoning_effort=config.get("reasoning_effort"),
+                verbosity=config.get("verbosity"),
+
                 # If omitted, this defaults to the global verbose value,
                 # accessible via langchain_core.globals.get_verbose():
                 # https://github.com/langchain-ai/langchain/blob/master/libs/core/langchain_core/globals.py#L53
