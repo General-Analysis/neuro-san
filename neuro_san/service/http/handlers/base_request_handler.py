@@ -24,7 +24,7 @@ import asyncio
 import tornado
 from tornado.web import RequestHandler
 
-from neuro_san.service.utils.async_atomic_counter import AsyncAtomicCounter
+from leaf_common.utils.async_atomic_counter import AsyncAtomicCounter
 from neuro_san.service.generic.async_agent_service import AsyncAgentService
 from neuro_san.service.generic.async_agent_service_provider import AsyncAgentServiceProvider
 from neuro_san.internals.network_providers.agent_network_storage import AgentNetworkStorage
