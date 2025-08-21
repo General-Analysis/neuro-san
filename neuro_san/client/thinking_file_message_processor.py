@@ -130,8 +130,13 @@ class ThinkingFileMessageProcessor(MessageProcessor):
         filename: Path = self.thinking_file
         if self.thinking_dir:
             if origin_filename is None or len(origin_filename) == 0:
-                return
-            filename = Path(self.thinking_dir, origin_filename)
+                # If no origin, but we have a thinking_file defined, use that
+                if self.thinking_file:
+                    filename = self.thinking_file
+                else:
+                    return
+            else:
+                filename = Path(self.thinking_dir, origin_filename)
 
         how_to_open_file: str = "a"
         if not filename.exists():
