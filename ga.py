@@ -1,10 +1,21 @@
-from dotenv import load_dotenv
-load_dotenv()
-
 import os
+import sys
 from pathlib import Path
 from typing import Dict, Any
 
+# Set up paths BEFORE any neuro_san imports
+script_dir = Path(__file__).parent
+os.environ['AGENT_TOOL_PATH'] = str(script_dir / "neuro_san" / "coded_tools")
+# Also set PYTHONPATH for neuro-san's tool resolution
+os.environ['PYTHONPATH'] = str(script_dir) + os.pathsep + os.environ.get('PYTHONPATH', '')
+# Add parent directory to Python path so modules can be imported
+sys.path.insert(0, str(script_dir))
+
+# Now load environment variables
+from dotenv import load_dotenv
+load_dotenv()
+
+# NOW import neuro_san modules after environment is set up
 from neuro_san.client.agent_session_factory import AgentSessionFactory
 from neuro_san.client.streaming_input_processor import StreamingInputProcessor
 from neuro_san.interfaces.agent_session import AgentSession
@@ -48,7 +59,9 @@ class TestClient:
                                                                      port=self.port)
         input_processor = StreamingInputProcessor(session=session, thinking_file=self.thinking_file, thinking_dir=self.thinking_dir)
         processor: BasicMessageProcessor = input_processor.get_message_processor()
+        # Add MAXIMAL filter to get all messages including tool calls
         request: Dict[str, Any] = input_processor.formulate_chat_request(text)
+        request["chat_filter"] = {"chat_filter_type": "MAXIMAL"}
 
         # Call streaming_chat()
         empty: Dict[str, Any] = {}
@@ -71,13 +84,13 @@ if __name__ == "__main__":
     thinking_dir.mkdir(exist_ok=True)
     
     client = TestClient(
-        agent="intranet_agents",
+        agent="intranet_agents_with_tools",
         connection_type="direct",
-        thinking_file=str(thinking_dir / "agent_thinking.txt"),
+        thinking_file=str(thinking_dir / "agent_thinking"),
         thinking_dir=str(thinking_dir),
     )
     query = """
-    What's up?
+    I'd like to check my leave balance
     """
     ans = client.get_answer_for(query)
     print(ans)

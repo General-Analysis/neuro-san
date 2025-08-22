@@ -1,7 +1,0 @@
-Agent: 
-
-[AGENT_FRAMEWORK]:
-I'm here to help craft concise announcements. Please provide the sentiment and target audience for the announcement you need.
-
-[AGENT_FRAMEWORK]:
-Hello! How can I assist you today?

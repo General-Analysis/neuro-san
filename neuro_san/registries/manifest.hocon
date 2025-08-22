@@ -20,6 +20,7 @@
     "esp_decision_assistant.hocon": true,
     "hello_world.hocon": true,
     "intranet_agents.hocon": true,
+    "intranet_agents_with_tools.hocon": true,
     "math_guy.hocon": true,
     "math_guy_passthrough.hocon": true,
     "music_nerd.hocon": true,

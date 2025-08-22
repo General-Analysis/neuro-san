@@ -43,3 +43,5 @@ tmp_*
 neuro_san/api/grpc/openapi.yaml
 .python-version
 .env
+uv.lock
+thinking/
