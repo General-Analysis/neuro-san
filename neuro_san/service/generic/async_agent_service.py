@@ -19,8 +19,7 @@ import uuid
 
 from leaf_common.asyncio.asyncio_executor import AsyncioExecutor
 from leaf_common.asyncio.asyncio_executor_pool import AsyncioExecutorPool
-
-from leaf_server_common.server.atomic_counter import AtomicCounter
+from leaf_common.utils.atomic_counter import AtomicCounter
 
 from neuro_san.internals.graph.registry.agent_network import AgentNetwork
 from neuro_san.internals.interfaces.agent_network_provider import AgentNetworkProvider
