@@ -73,6 +73,9 @@ class ExternalAgentParsing:
         agent_name: str = parse_result.path
         while agent_name.startswith("/"):
             agent_name = agent_name[1:]
+        if "/" in agent_name:
+            # Normalize namespaced paths (e.g., "tools/ddgs_search") to the final segment.
+            agent_name = agent_name.split("/")[-1]
 
         # Assemble the return dictionary
         return_dict = {

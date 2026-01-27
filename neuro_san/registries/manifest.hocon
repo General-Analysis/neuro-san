@@ -19,8 +19,8 @@
 
     "esp_decision_assistant.hocon": true,
     "hello_world.hocon": true,
-    "intranet_agents.hocon": true,
-    "intranet_agents_with_tools.hocon": true,
+    "intranet_agents.hocon": false,
+    "intranet_agents_with_tools.hocon": false,
     "math_guy.hocon": true,
     "math_guy_passthrough.hocon": true,
     "music_nerd.hocon": true,
@@ -48,6 +48,32 @@
     # In other words, these coded tools can be used in any agent network.
     # These tools are also predefined in the toolbox.
     "website_rag.hocon": true,
+
+    # Tool agent networks (used by industry registries)
+    "tools/ddgs_search.hocon": true,
+    "tools/brave_search.hocon": true,
+
+    # Industry agent networks (ported from neuro-san-studio)
+    "industry/airbnb.hocon": true,
+    "industry/airline_policy.hocon": true,
+    "industry/banking_ops.hocon": true,
+    "industry/booking.hocon": true,
+    "industry/carmax.hocon": true,
+    "industry/consumer_decision_assistant.hocon": true,
+    "industry/cpg_agents.hocon": true,
+    "industry/expedia.hocon": true,
+    "industry/insurance_agents.hocon": true,
+    "industry/insurance_underwriting_agents.hocon": true,
+    "industry/intranet_agents.hocon": true,
+    "industry/intranet_agents_with_tools.hocon": true,
+    "industry/LinkedInJobSeekerSupportNetwork.hocon": true,
+    "industry/macys.hocon": true,
+    "industry/news_sentiment_analysis.hocon": true,
+    "industry/real_estate.hocon": true,
+    "industry/retail_ops_and_customer_service.hocon": true,
+    "industry/telco_network_orchestration.hocon": true,
+    "industry/telco_network_support.hocon": true,
+    "industry/therapy_vignette_supervisors.hocon": true,
 
     # Agents having to do with test infrastructure
     "gist.hocon": true,

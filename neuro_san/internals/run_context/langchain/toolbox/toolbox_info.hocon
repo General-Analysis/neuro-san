@@ -199,6 +199,38 @@
         },
     },
 
+    # Search tool for the Brave Search API (requires BRAVE_API_KEY).
+    "brave_search": {
+        "class": "tools.brave_search.BraveSearch",
+        "description": "Performs a web search using Brave Search.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "search_terms": {
+                    "type": "string",
+                    "description": "The query string or keywords to search for."
+                },
+            },
+            "required": ["search_terms"]
+        },
+    },
+
+    # Search tool for DuckDuckGo (no API key required).
+    "ddgs_search": {
+        "class": "tools.ddgs_search.DdgsSearch",
+        "description": "Performs a web search using DDGS Search.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "search_terms": {
+                    "type": "string",
+                    "description": "The query string or keywords to search for."
+                },
+            },
+            "required": ["search_terms"]
+        },
+    },
+
     # Tool for retrieving contextually relevant information from a list of URLs using a retrieval-augmented generation (RAG) strategy.
     "rag_retriever": {
         "class": "rag.Rag",

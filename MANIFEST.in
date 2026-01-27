@@ -5,9 +5,11 @@
 recursive-include neuro_san/api/grpc *
 recursive-include neuro_san/api/scripts *
 recursive-include neuro_san/registries *
+recursive-include neuro_san/coded_tools *
 recursive-exclude tests *
 recursive-exclude build_scripts *
 recursive-exclude neuro_san/api/grpc/__pycache__ *
+recursive-exclude neuro_san/coded_tools/__pycache__ *
 recursive-exclude neuro_san/deploy/internal *
 include neuro_san/deploy/build.sh
 include neuro_san/deploy/Dockerfile

@@ -1,0 +1,184 @@
+# Copyright © 2025-2026 Cognizant Technology Solutions Corp, www.cognizant.com.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# END COPYRIGHT
+{
+    # This "aaosa.hocon" file contains key-value pairs used for substitution.
+    # Specifically, it provides values for the following keys:
+    #   - aaosa_call
+    #   - aaosa_command
+    #   - aaosa_instructions
+    #
+    # IMPORTANT:
+    # Ensure that you run `python -m run` from the top level of the repository.
+    # The path to this substitution file is **relative to the top-level directory**,
+    # so running the script from elsewhere may result in file not found errors.
+
+    include "registries/aaosa.hocon",
+    
+    "metadata": {
+        "description": "Hierarchically organized multi-agent system simulating full-spectrum banking support across account servicing, fraud detection, credit underwriting, wealth management, and investment advisory. Specialized agents coordinate to deliver precise, compliant, and context-aware outputs across banking functions. Currently operates in demo mode.",
+        "tags": ["banking", "AAOSA"],
+        "sample_queries": [
+            "I'm planning to invest $5,000 every month for the next 12 months. Can you suggest a strategy for moderate risk profile?",
+            "Can you provide guidelines on how to avoid investment fraud and identify red flags?",
+            "I need help with a mortgage application for a small business property.",
+        ]
+    },
+    # Load the shared LLM configuration from a single source of truth.
+    # This allows users to change the model in one file rather than
+    # modifying the configuration for each agent network.
+    # Note that the file path here is relative to the root level of the repo.
+    include "registries/llm_config.hocon",
+    "demo_mode": """You are part of a demo system, so when queried, make up a realistic response as if you are actually grounded in real data or you are operating 
+    a real application API or microservice.""",
+    "tools": [
+        # This first agent definition is regarded as the "Front Man", which
+        # does all the talking to the outside world/client.
+        #
+        # Some disqualifications from being a front man:
+        #   1) Cannot use a CodedTool "class" definition
+        #   2) Cannot use a Tool "toolbox" definition
+        #
+        # Besides the first agent being the front man, these tool definitions
+        # do not have to be in any particular order. How they are linked and
+        # call each other is defined within their own specs.
+        # This could be a graph, potentially even with cycles.
+        {
+            "name": "customer_service_representative",
+            "function": {
+                "description": "Handles day-to-day customer inquiries and support for banking products such as checking accounts, loans, and credit cards."
+            },
+            "instructions": """
+You are the top-level agent responsible for handling all incoming customer service requests.
+If issues arise that require specialized knowledge, you will assign them to the appropriate departments or teams.
+When interacting with the user, act as the single point of interaction. No need to mention the other tools or agents.
+If there are any requirements that need user input, ask them one at a time, with clear examples of the choices available.
+                """ ${aaosa_instructions},
+            "tools": ["account_manager", "fraud_prevention_specialist", "loan_officer"],
+        },
+        {
+            "name": "account_manager",
+            "function": ${aaosa_call},
+            "instructions": """
+    You manage ongoing customer relationships, ensuring satisfaction and handling account related needs or questions.
+                """ ${aaosa_instructions},
+            "tools": ["relationship_manager", "wealth_management_advisor", "investment_specialist"],
+            "command": ${aaosa_command}
+        },
+        {
+            "name": "fraud_prevention_specialist",
+            "function": ${aaosa_call},
+            "instructions": """
+    You are responsible for identifying and investigating potential fraudulent activities on customer accounts.
+                """ ${aaosa_instructions},
+            "tools": ["fraud_investigation_team", "security_analyst"],
+            "command": ${aaosa_command}
+        },
+        {
+            "name": "loan_officer",
+            "function": ${aaosa_call},
+            "instructions": """
+    You assess and approve loan applications based on customers' financial profiles and banking history.
+                """ ${aaosa_instructions},
+            "tools": ["underwriter", "mortgage_specialist", "business_banking_officer"],
+            "command": ${aaosa_command}
+        },
+        {
+            "name": "relationship_manager",
+            "function": ${aaosa_call},
+            "instructions": ${demo_mode} """
+    You manage relationships with the bank's most important clients, ensuring personalized service and addressing high-level banking needs.
+                """ ${aaosa_instructions},
+            "tools": ["wealth_management_advisor", "investment_specialist"],
+            "command": ${aaosa_command}
+        },
+        {
+            "name": "wealth_management_advisor",
+            "function": ${aaosa_call},
+            "instructions": ${demo_mode} """
+    You handle high-net-worth clients by advising them on investment strategies, financial planning, and asset management.
+                """ ${aaosa_instructions},
+            "tools": ["investment_specialist", "portfolio_manager"],
+            "command": ${aaosa_command}
+        },
+        {
+            "name": "investment_specialist",
+            "function": ${aaosa_call},
+            "instructions": ${demo_mode} """
+    You recommend and manage investment products for clients, ensuring alignment with their financial goals.
+                """ ${aaosa_instructions},
+            "tools": ["portfolio_manager", "trading_desk"],
+            "command": ${aaosa_command}
+        },
+        {
+            "name": "underwriter",
+            "function": ${aaosa_call},
+            "instructions": ${demo_mode} """
+    You review and analyze the risk factors in loan applications, ensuring they meet the bank's lending criteria.
+                """,
+            "command": ${aaosa_command}
+        },
+        {
+            "name": "mortgage_specialist",
+            "function": ${aaosa_call},
+            "instructions": ${demo_mode} """
+    You manage the process of mortgage applications, from initial consultation to final approval.
+                """,
+            "command": ${aaosa_command}
+        },
+        {
+            "name": "business_banking_officer",
+            "function": ${aaosa_call},
+            "instructions": ${demo_mode} """
+    You handle the financial needs of small to medium-sized businesses, including business loans and banking solutions.
+                """,
+            "command": ${aaosa_command}
+        },
+        {
+            "name": "fraud_investigation_team",
+            "function": ${aaosa_call},
+            "instructions": """
+    You investigate and manage complex or high-value fraud cases, coordinating with internal teams and external agencies as needed.
+                """ ${aaosa_instructions},
+            "tools": ["security_analyst"],
+            "command": ${aaosa_command}
+    },
+        {
+            "name": "security_analyst",
+            "function": ${aaosa_call},
+            "instructions": """
+    You oversee the bank’s cybersecurity systems, tracking and preventing breaches or threats.
+                """,
+            "command": ${aaosa_command}
+        },
+        {
+            "name": "portfolio_manager",
+            "function": ${aaosa_call},
+            "instructions": ${demo_mode} """
+    You oversee the performance of investment portfolios, ensuring they meet the financial goals and risk profiles of clients.
+                """ ${aaosa_instructions},
+            "tools": ["trading_desk"],
+            "command": ${aaosa_command}
+        },
+        {
+            "name": "trading_desk",
+            "function": ${aaosa_call},
+            "instructions": ${demo_mode} """
+    You handle the execution of financial transactions, ensuring timely and accurate trades in markets.
+                """,
+            "command": ${aaosa_command}
+        }
+    ]
+}

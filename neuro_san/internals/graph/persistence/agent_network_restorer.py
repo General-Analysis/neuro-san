@@ -18,11 +18,11 @@ from pathlib import Path
 
 import json
 
+from pyhocon import ConfigFactory
 from pyparsing.exceptions import ParseException
 from pyparsing.exceptions import ParseSyntaxException
 
 from leaf_common.config.config_filter_chain import ConfigFilterChain
-from leaf_common.persistence.easy.easy_hocon_persistence import EasyHoconPersistence
 from leaf_common.persistence.interface.restorer import Restorer
 
 from neuro_san.internals.graph.filters.defaults_config_filter import DefaultsConfigFilter
@@ -70,8 +70,7 @@ class AgentNetworkRestorer(Restorer):
             if use_file.endswith(".json"):
                 config = json.load(use_file)
             elif use_file.endswith(".hocon"):
-                hocon = EasyHoconPersistence(full_ref=use_file, must_exist=True)
-                config = hocon.restore()
+                config = self._restore_hocon(use_file)
             else:
                 raise ValueError(f"file_reference {use_file} must be a .json or .hocon file")
         except (ParseException, ParseSyntaxException, json.decoder.JSONDecodeError) as exception:
@@ -91,6 +90,33 @@ syntactically incorrect in that file.
         name = Path(use_file).stem
         agent_network: AgentNetwork = self.restore_from_config(name, config)
         return agent_network
+
+    def _restore_hocon(self, use_file: str) -> Dict[str, Any]:
+        with open(use_file, "r", encoding="utf-8") as hocon_file:
+            hocon_string = hocon_file.read()
+
+        base_dir = self._resolve_hocon_basedir(use_file)
+        config = ConfigFactory.parse_string(hocon_string, basedir=base_dir)
+
+        if config is not None:
+            # Remove ConfigTree instances from nested dictionaries.
+            config = json.loads(json.dumps(config))
+
+        return config
+
+    def _resolve_hocon_basedir(self, use_file: str) -> str:
+        if self.registry_dir is not None:
+            registry_path = Path(self.registry_dir).resolve()
+            if registry_path.name == "registries":
+                return str(registry_path.parent)
+
+        resolved_file = Path(use_file).resolve()
+        if "registries" in resolved_file.parts:
+            registries_index = resolved_file.parts.index("registries")
+            if registries_index > 0:
+                return str(Path(*resolved_file.parts[:registries_index]))
+
+        return str(resolved_file.parent)
 
     def restore_from_config(self, agent_name: str, config: Dict[str, Any]) -> AgentNetwork:
         """
