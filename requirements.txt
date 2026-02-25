@@ -42,7 +42,7 @@ langchain-google-genai>=2.1.8,<3.0
 langchain-openai>=0.3.29,<0.4
 langchain-nvidia-ai-endpoints>=0.3.8,<0.4
 langchain-ollama>=0.3.4,<0.4
-openai>=1.54.1,<2.0
+openai>=1.54.1
 bs4>=0.0.2,<0.1
 pydantic>=2.9.2,<3.0
 
