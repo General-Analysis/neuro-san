@@ -109,18 +109,6 @@
         "max_output_tokens": 128000,
         "knowledge_cutoff": "05/30/2024",
     },
-    "gpt-5.2": {
-        "class": "openai",
-        "model_info_url": "https://platform.openai.com/docs/models/gpt-5.2",
-        "modalities": {
-            "input": [ "text", "image" ],
-            "output": [ "text" ],
-        },
-        "capabilities": [ "tools" ],
-        "context_window_size": 400000,
-        "max_output_tokens": 128000,
-        "knowledge_cutoff": "08/31/2025",
-    },
     "gpt-4.1": {
         "use_model_name": "gpt-4.1-2025-04-14",
     },
